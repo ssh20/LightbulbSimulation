@@ -2,6 +2,7 @@ package LightbulbSimulation;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 public class LightbulbSimulator {
 	private static int lightbulbs;
@@ -28,36 +29,52 @@ public class LightbulbSimulator {
 	}
 	
 	public static void solveAll(int lightbulbs) {
+		int countSolvable = 0, countUnsolvable = 0;
+		setLightbulbs(lightbulbs);
 		for(int i = 0; i < Math.pow(states, lightbulbs); i++) {
 			String config = Integer.toString(i,states);
 			config = padString(config);
 			String canOrCannot = "";
-			if(solve(config)) {
-				canOrCannot = "can";
-				solvableConfigs.addAll(configs);
-			}
-			else {
-				canOrCannot = "cannot";
-				unsolvableConfigs.addAll(configs);
-			}
-			System.out.println("For "+config+", we "+canOrCannot+" solve this configuration.");
-			if(canOrCannot.equals("can")) {
-				System.out.print("Steps taken to solve system: {");
-				for(Integer step: steps.keySet()) {
-					for(int j = 0; j < steps.get(step); j++) {
-						System.out.print(step);
-						System.out.print(", ");
-					}
+			if(!solvableConfigs.contains(config)&&!unsolvableConfigs.contains(config)) {
+				if(solve(config)) {
+					canOrCannot = "can";
+					solvableConfigs.addAll(configs);
+					countSolvable++;
 				}
-				System.out.print("}\n");
+				else {
+					canOrCannot = "cannot";
+					unsolvableConfigs.addAll(configs);
+					countUnsolvable++;
+				}
+				System.out.println("For "+config+", we "+canOrCannot+" solve this configuration.");
+				if(canOrCannot.equals("can")) {
+					System.out.print("Steps taken to solve system: {");
+					for(Integer step: steps.keySet()) {
+						for(int j = 0; j < steps.get(step); j++) {
+							System.out.print(step);
+							System.out.print(", ");
+						}
+					}
+					System.out.print("}\n");
+				}
 			}
+			else if(solvableConfigs.contains(config))
+				System.out.println("For "+config+", we can solve this configuration.");
+			else if(unsolvableConfigs.contains(config))
+				System.out.println("For "+config+", we cannot solve this configuration.");
 			steps.clear();
 			configs.clear();
 		}
+		System.out.println("There are "+countSolvable+" solvable configurations and "+countUnsolvable+" unsolvable configurations.");
 	}
 	
 	public static boolean solve(String config) {
 		config = padString(config);
+		if(solvableConfigs.contains(config))
+			return true;
+		if(unsolvableConfigs.contains(config))
+			return false;
+		
 		if(Integer.parseInt(config, states)==0)
 			return true;
 		
@@ -115,6 +132,8 @@ public class LightbulbSimulator {
 			newConfig.setCharAt(theSwitch-2, (char)(bitPrev+48));
 			newConfig.setCharAt(theSwitch, (char)(bitNext+48));
 		}
+				
+		String dude = newConfig.toString();
 		return newConfig.toString();
 	}
 	
