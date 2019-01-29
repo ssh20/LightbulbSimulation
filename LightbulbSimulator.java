@@ -11,6 +11,7 @@ public class LightbulbSimulator {
 	private static HashSet<String> configs = new HashSet<String>();
 	private static HashSet<String> solvableConfigs = new HashSet<String>();
 	private static HashSet<String> unsolvableConfigs = new HashSet<String>();
+	private static boolean shortcut = false;
 	
 	public static int getStates() {
 		return states;
@@ -47,7 +48,7 @@ public class LightbulbSimulator {
 					countUnsolvable++;
 				}
 				System.out.println("For "+config+", we "+canOrCannot+" solve this configuration.");
-				if(canOrCannot.equals("can")) {
+				if(canOrCannot.equals("can")&&!shortcut) {
 					System.out.print("Steps taken to solve system: {");
 					for(Integer step: steps.keySet()) {
 						for(int j = 0; j < steps.get(step); j++) {
@@ -58,26 +59,35 @@ public class LightbulbSimulator {
 					System.out.print("}\n");
 				}
 			}
-			else if(solvableConfigs.contains(config))
+			else if(solvableConfigs.contains(config)) {
 				System.out.println("For "+config+", we can solve this configuration.");
-			else if(unsolvableConfigs.contains(config))
+				countSolvable++;
+			}
+			else if(unsolvableConfigs.contains(config)) {
 				System.out.println("For "+config+", we cannot solve this configuration.");
+				countUnsolvable++;
+			}
 			steps.clear();
 			configs.clear();
+			shortcut = false;
 		}
 		System.out.println("There are "+countSolvable+" solvable configurations and "+countUnsolvable+" unsolvable configurations.");
 	}
 	
 	public static boolean solve(String config) {
 		config = padString(config);
-		if(solvableConfigs.contains(config))
+		if(solvableConfigs.contains(config)) {
+			shortcut = true;
 			return true;
-		if(unsolvableConfigs.contains(config))
+		}
+		if(unsolvableConfigs.contains(config)) {
+			shortcut = true;
 			return false;
-		
+		}
 		if(Integer.parseInt(config, states)==0)
 			return true;
 		
+		configs.add(config);
 		boolean removeElement = false;
 			for(int j = 1; j < lightbulbs+1; j++) {
 				if(!steps.containsKey(j)) {
